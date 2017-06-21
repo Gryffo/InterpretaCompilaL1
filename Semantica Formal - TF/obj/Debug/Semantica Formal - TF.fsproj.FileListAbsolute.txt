@@ -1,0 +1,8 @@
+C:\Users\rodri\Dropbox\Self\College\Semântica Formal\Semantica Formal - TF\Semantica Formal - TF\bin\Debug\Semantica_Formal___TF.exe.config
+C:\Users\rodri\Dropbox\Self\College\Semântica Formal\Semantica Formal - TF\Semantica Formal - TF\bin\Debug\Semantica_Formal___TF.XML
+C:\Users\rodri\Dropbox\Self\College\Semântica Formal\Semantica Formal - TF\Semantica Formal - TF\bin\Debug\Semantica_Formal___TF.exe
+C:\Users\rodri\Dropbox\Self\College\Semântica Formal\Semantica Formal - TF\Semantica Formal - TF\bin\Debug\Semantica_Formal___TF.pdb
+C:\Users\rodri\Dropbox\Self\College\Semântica Formal\Semantica Formal - TF\Semantica Formal - TF\bin\Debug\FSharp.Core.dll
+C:\Users\rodri\Dropbox\Self\College\Semântica Formal\Semantica Formal - TF\Semantica Formal - TF\bin\Debug\FSharp.Core.xml
+C:\Users\rodri\Dropbox\Self\College\Semântica Formal\Semantica Formal - TF\Semantica Formal - TF\obj\Debug\Semantica_Formal___TF.exe
+C:\Users\rodri\Dropbox\Self\College\Semântica Formal\Semantica Formal - TF\Semantica Formal - TF\obj\Debug\Semantica_Formal___TF.pdb
