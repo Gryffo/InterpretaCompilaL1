@@ -61,7 +61,6 @@ let rec eval (env:Env, t:Expr) = // Expr -> Value
     | Bool(x) -> Vbool(x)
 
     // Op + - * div == and or
-    // | Bop (t1, op, t2) when op = Sum -> eval(t1) + eval(t2)
 
     // Identificador
     // ???
@@ -79,11 +78,12 @@ let rec eval (env:Env, t:Expr) = // Expr -> Value
     // Let rec                                      {f → <f, x, e1, env>} + env |- e2 ⇓ v                   v
     | Lrec (f, (ty1, ty2), (x, ty3, e1), e2) when (isvalue ((f, Vrclos(f, x, e1, env))::env, e2)) -> eval((f, Vrclos(f, x, e1, env))::env, e2)
 
-    // App              env |- e1 ⇓ <x, e, env'>                env |- e2 ⇓ v'              {x → v'} + env |- e ⇓ v
-    //| App (e1, e2) when eval (env, e1) = Vclos(x, e, env') && (isvalue (env, e2)) && isvalue ((x, eval(env, e2))::env, e) -> eval ((x, (isvalue e2))::env, e)
+    // App          env |- e1 ⇓ <x, e, env'>                env |- e2 ⇓ v'                  {x → v'} + env |- e ⇓ v                 v
+    | App (e1, e2) -> match eval(env, e1) with
+                    | Vclos(x, e, env') when                (isvalue (env, e2)) &&          isvalue ((x, eval(env, e2))::env, e) -> eval ((x, (eval (env, e2)))::env, e)
+                    | Vrclos(f, x, e, env') when            (isvalue (env, e2)) &&          isvalue (((x, eval(env, e2))::(f, Vrclos(f, x, e, env'))::env'), e) -> eval (((x, eval(env, e2))::(f, Vrclos(f, x, e, env'))::env'), e)
+    // App rec      env |- e1 ⇓ <f, x, e, env`>             env |- e2 ⇓ v'                  {x → v'} + {f → <f, x, e, env'>} + env' |- e ⇓ v                        v
 
-    // App rec           env |- e1 ⇓ <f, x, e, env`>        env |- e2 ⇓ v'        {x → v'} + {f → <f, x, e, env'>} + env' |- e ⇓ v
-    //| App (e1, e2) when eval(e1) = Vrclos(f, x,  ->
 
 [<EntryPoint>]
 let main argv = 
