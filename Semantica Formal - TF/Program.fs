@@ -24,6 +24,8 @@ type Operator =
 type Tipo =
     | TyInt
     | TyBool
+    | TySkip
+    | TyUnmatched
     | TyFn of Tipo * Tipo
 
 type Expr =
@@ -54,16 +56,16 @@ and
 let rec isvalue (env:Env, e : Expr) = 
 
     match e with
-    | Num(_) -> true
-    | Bool(_) -> true
-    | Bop(a,_,b) when isvalue(env, a) && isvalue(env, b) -> true
-    | If(e1, e2, e3) when isvalue(env, e1) && isvalue(env, e2) && isvalue(env, e3) -> true
-    | Var(_) -> true
-    | App(_,_) -> true
-    | Lam(_,_,_) -> true
-    | Let(_,_,_,_) -> true
-    | Lrec(_,(_,_),(_,_,_),_) -> true
-    | _ -> false
+        | Num(_) -> true
+        | Bool(_) -> true
+        | Bop(a,_,b) when isvalue(env, a) && isvalue(env, b) -> true
+        | If(e1, e2, e3) when isvalue(env, e1) && isvalue(env, e2) && isvalue(env, e3) -> true
+        | Var(_) -> true
+        | App(_,_) -> true
+        | Lam(_,_,_) -> true
+        | Let(_,_,_,_) -> true
+        | Lrec(_,(_,_),(_,_,_),_) -> true
+        | _ -> false
 
 let rec findvariable (env:Env, var:Variable) =
 
@@ -71,7 +73,12 @@ let rec findvariable (env:Env, var:Variable) =
         | (v, va)::rst when v = var -> va
         | (_, _)::tl -> findvariable(tl, var)
         | [] -> VRaise
-       
+
+
+
+
+
+
 let rec eval (env:Env, t:Expr) = // Expr -> Value
     match t with
 
@@ -128,6 +135,42 @@ let rec eval (env:Env, t:Expr) = // Expr -> Value
          
     // No matching -> RAISE
     | _ -> VRaise 
+
+
+
+(** verifica se a expressão é de dado tipo *)
+let rec typecheck (env:Env, t : Expr) =
+
+    match t with
+        | Num(_) -> TyInt // T-INT
+        | Bool(_) -> TyBool // T-BOOL
+        //| Lam(_,_,_) -> TyFn;
+        //| If(t1, t2, t3) when typecheck (env, eval(env, t1)) = TyBool && (typecheck (env, eval(env, t2)) = typecheck (env, eval(env, t3))) -> typecheck (env, eval(env, t2))
+        | If(t1, t2, t3) -> match (eval(env, t1),  eval(env, t2), eval(env, t3) with
+                            | (Vbool(a), Vnum(b), Vnum(c)) when typecheck(
+        //when typecheck (env, eval(env, t1)) = TyBool && (typecheck (env, eval(env, t2)) = typecheck (env, eval(env, t3))) -> typecheck (env, eval(env, t2))
+        //| Var(x) when 
+        | Bop (t1, op, t2) -> match (eval(env, t1), op, eval(env, t2)) with
+                            | (Vnum(a), Sum, Vnum(b)) when typecheck(env, t1) = TyInt && typecheck(env, t2) = TyInt -> TyInt
+                            | (Vnum(a), Diff, Vnum(b)) when typecheck(env, t1) = TyInt && typecheck(env, t2) = TyInt -> TyInt
+                            | (Vnum(a), Mult, Vnum(b)) when typecheck(env, t1) = TyInt && typecheck(env, t2) = TyInt -> TyInt
+                            | (Vnum(a), Div, Vnum(0)) -> TySkip
+                            | (Vnum(a), Div, Vnum(b)) when typecheck(env, t1) = TyInt && typecheck(env, t2) = TyInt -> TyInt
+                            | (Vnum(a), Ls, Vnum(b)) when typecheck(env, t1) = TyInt && typecheck(env, t2) = TyInt -> TyBool
+                            | (Vnum(a), Lse, Vnum(b)) when typecheck(env, t1) = TyInt && typecheck(env, t2) = TyInt -> TyBool
+                            | (Vnum(a), Gr, Vnum(b)) when typecheck(env, t1) = TyInt && typecheck(env, t2) = TyInt -> TyBool
+                            | (Vnum(a), Gre, Vnum(b)) when typecheck(env, t1) = TyInt && typecheck(env, t2) = TyInt -> TyBool
+                            | (Vnum(a), Neq, Vnum(b)) when typecheck(env, t1) = TyInt && typecheck(env, t2) = TyInt -> TyBool
+                            | (Vnum(a), Eq, Vnum(b)) when typecheck(env, t1) = TyInt && typecheck(env, t2) = TyInt -> TyBool
+
+                            | (Vbool(a), Neq, Vbool(b)) when typecheck(env, t1) = TyBool && typecheck(env, t2) = TyBool -> TyBool
+                            | (Vbool(a), Eq, Vbool(b)) when typecheck(env, t1) = TyBool && typecheck(env, t2) = TyBool -> TyBool
+                            | (Vbool(a), And, Vbool(b)) when typecheck(env, t1) = TyBool && typecheck(env, t2) = TyBool -> TyBool
+                            | (Vbool(a), Or, Vbool(b)) when typecheck(env, t1) = TyBool && typecheck(env, t2) = TyBool -> TyBool
+
+                            | _ -> TyUnmatched
+        | 
+
 
 /////////////
 // STRINGS //
