@@ -145,10 +145,7 @@ let rec typecheck (env:Env, t : Expr) =
         | Num(_) -> TyInt // T-INT
         | Bool(_) -> TyBool // T-BOOL
         //| Lam(_,_,_) -> TyFn;
-        //| If(t1, t2, t3) when typecheck (env, eval(env, t1)) = TyBool && (typecheck (env, eval(env, t2)) = typecheck (env, eval(env, t3))) -> typecheck (env, eval(env, t2))
-        | If(t1, t2, t3) -> match (eval(env, t1),  eval(env, t2), eval(env, t3) with
-                            | (Vbool(a), Vnum(b), Vnum(c)) when typecheck(
-        //when typecheck (env, eval(env, t1)) = TyBool && (typecheck (env, eval(env, t2)) = typecheck (env, eval(env, t3))) -> typecheck (env, eval(env, t2))
+        | If(t1, t2, t3) when typecheck (env, t1) = TyBool && (typecheck (env, t2) = typecheck (env, t3)) -> typecheck (env, t2)
         //| Var(x) when 
         | Bop (t1, op, t2) -> match (eval(env, t1), op, eval(env, t2)) with
                             | (Vnum(a), Sum, Vnum(b)) when typecheck(env, t1) = TyInt && typecheck(env, t2) = TyInt -> TyInt
