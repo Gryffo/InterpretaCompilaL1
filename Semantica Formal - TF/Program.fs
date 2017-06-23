@@ -24,8 +24,6 @@ type Operator =
 type Tipo =
     | TyInt
     | TyBool
-    | TySkip
-    | TyUnmatched
     | TyFn of Tipo * Tipo
 
 type Expr =
@@ -147,25 +145,24 @@ let rec typecheck (env:Env, t : Expr) =
         //| Lam(_,_,_) -> TyFn;
         | If(t1, t2, t3) when typecheck (env, t1) = TyBool && (typecheck (env, t2) = typecheck (env, t3)) -> typecheck (env, t2)
         //| Var(x) when 
-        | Bop (t1, op, t2) -> match (eval(env, t1), op, eval(env, t2)) with
-                            | (Vnum(a), Sum, Vnum(b)) when typecheck(env, t1) = TyInt && typecheck(env, t2) = TyInt -> TyInt
-                            | (Vnum(a), Diff, Vnum(b)) when typecheck(env, t1) = TyInt && typecheck(env, t2) = TyInt -> TyInt
-                            | (Vnum(a), Mult, Vnum(b)) when typecheck(env, t1) = TyInt && typecheck(env, t2) = TyInt -> TyInt
-                            | (Vnum(a), Div, Vnum(0)) -> TySkip
-                            | (Vnum(a), Div, Vnum(b)) when typecheck(env, t1) = TyInt && typecheck(env, t2) = TyInt -> TyInt
-                            | (Vnum(a), Ls, Vnum(b)) when typecheck(env, t1) = TyInt && typecheck(env, t2) = TyInt -> TyBool
-                            | (Vnum(a), Lse, Vnum(b)) when typecheck(env, t1) = TyInt && typecheck(env, t2) = TyInt -> TyBool
-                            | (Vnum(a), Gr, Vnum(b)) when typecheck(env, t1) = TyInt && typecheck(env, t2) = TyInt -> TyBool
-                            | (Vnum(a), Gre, Vnum(b)) when typecheck(env, t1) = TyInt && typecheck(env, t2) = TyInt -> TyBool
-                            | (Vnum(a), Neq, Vnum(b)) when typecheck(env, t1) = TyInt && typecheck(env, t2) = TyInt -> TyBool
-                            | (Vnum(a), Eq, Vnum(b)) when typecheck(env, t1) = TyInt && typecheck(env, t2) = TyInt -> TyBool
+        | Bop (t1, op, t2) -> match (typecheck(env, t1), op, typecheck(env, t2)) with
+                            | (TyInt, Sum, TyInt) -> TyInt
+                            | (TyInt, Diff, TyInt) -> TyInt
+                            | (TyInt, Mult, TyInt) -> TyInt
+                            | (TyInt, Div, TyInt) -> TyInt
+                            | (TyInt, Ls, TyInt) -> TyBool
+                            | (TyInt, Lse, TyInt) -> TyBool
+                            | (TyInt, Gr, TyInt) -> TyBool
+                            | (TyInt, Gre, TyInt) -> TyBool
+                            | (TyInt, Neq, TyInt) -> TyBool
+                            | (TyInt, Eq, TyInt) -> TyBool
 
-                            | (Vbool(a), Neq, Vbool(b)) when typecheck(env, t1) = TyBool && typecheck(env, t2) = TyBool -> TyBool
-                            | (Vbool(a), Eq, Vbool(b)) when typecheck(env, t1) = TyBool && typecheck(env, t2) = TyBool -> TyBool
-                            | (Vbool(a), And, Vbool(b)) when typecheck(env, t1) = TyBool && typecheck(env, t2) = TyBool -> TyBool
-                            | (Vbool(a), Or, Vbool(b)) when typecheck(env, t1) = TyBool && typecheck(env, t2) = TyBool -> TyBool
+                            | (TyBool, Neq, TyBool) -> TyBool
+                            | (TyBool, Eq, TyBool) -> TyBool
+                            | (TyBool, And, TyBool) -> TyBool
+                            | (TyBool, Or, TyBool) -> TyBool
 
-                            | _ -> TyUnmatched
+                            //| _ -> TyUnmatched
         | 
 
 
