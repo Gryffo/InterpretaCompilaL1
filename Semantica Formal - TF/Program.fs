@@ -25,6 +25,10 @@ type Tipo =
     | TyInt
     | TyBool
     | TyFn of Tipo * Tipo
+    | TyUnmatched
+and
+    Typenv = (Variable * Tipo) list
+
 
 type Expr =
     | Num of int
@@ -71,6 +75,13 @@ let rec findvariable (env:Env, var:Variable) =
         | (v, va)::rst when v = var -> va
         | (_, _)::tl -> findvariable(tl, var)
         | [] -> VRaise
+
+let rec findvariabletype (env:Typenv, var:Variable) =
+
+    match env with
+        | (v, ty)::rst when v = var -> ty
+        | (_, _)::tl -> findvariabletype(tl, var)
+        | [] -> TyUnmatched
 
 
 
@@ -137,14 +148,13 @@ let rec eval (env:Env, t:Expr) = // Expr -> Value
 
 
 (** verifica se a expressão é de dado tipo *)
-let rec typecheck (env:Env, t : Expr) =
+let rec typecheck (env:Typenv, t : Expr) =
 
     match t with
         | Num(_) -> TyInt // T-INT
         | Bool(_) -> TyBool // T-BOOL
         //| Lam(_,_,_) -> TyFn;
         | If(t1, t2, t3) when typecheck (env, t1) = TyBool && (typecheck (env, t2) = typecheck (env, t3)) -> typecheck (env, t2)
-        //| Var(x) when 
         | Bop (t1, op, t2) -> match (typecheck(env, t1), op, typecheck(env, t2)) with
                             | (TyInt, Sum, TyInt) -> TyInt
                             | (TyInt, Diff, TyInt) -> TyInt
@@ -162,8 +172,8 @@ let rec typecheck (env:Env, t : Expr) =
                             | (TyBool, And, TyBool) -> TyBool
                             | (TyBool, Or, TyBool) -> TyBool
 
-                            //| _ -> TyUnmatched
-        | 
+                            | _ -> TyUnmatched
+        | Var(x) -> findvariabletype(env, x)
 
 
 /////////////
@@ -237,6 +247,8 @@ and
 
 (** processa uma operação informando a descrição da mesma e o resultado **)
 let rec processexpr(t:Expr) =
+    //let typenv = Typenv.Empty
+    //let typecheckedexp = typecheck(typenv, t)
     let env = Env.Empty
     let result = valuetostring(eval (env, t))
     let desc = exprtostring (t)
