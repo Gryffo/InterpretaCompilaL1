@@ -151,9 +151,8 @@ let rec eval (env:Env, t:Expr) = // Expr -> Value
 let rec typecheck (env:Typenv, t : Expr) =
 
     match t with
-        | Num(_) -> TyInt // T-INT
-        | Bool(_) -> TyBool // T-BOOL
-        //| Lam(_,_,_) -> TyFn;
+        | Num(x) -> TyInt
+        | Bool(x) -> TyBool
         | If(t1, t2, t3) when typecheck (env, t1) = TyBool && (typecheck (env, t2) = typecheck (env, t3)) -> typecheck (env, t2)
         | Bop (t1, op, t2) -> match (typecheck(env, t1), op, typecheck(env, t2)) with
                             | (TyInt, Sum, TyInt) -> TyInt
@@ -174,6 +173,18 @@ let rec typecheck (env:Typenv, t : Expr) =
 
                             | _ -> TyUnmatched
         | Var(x) -> findvariabletype(env, x)
+        | Lam (var, ty, t) when ty <> TyUnmatched && typecheck((var, ty)::env, t) <> TyUnmatched -> TyFn(ty, typecheck((var, ty)::env, t))
+        | Let (x, ty, e1, e2) when ty <> TyUnmatched && typecheck(env, e1) = ty && typecheck((x, ty)::env, e2) <> TyUnmatched -> typecheck((x, ty)::env, e2)
+        | Lrec (f, (ty1, ty2), (x, ty3, e1), e2) when ty1 <> TyUnmatched && ty2 <> TyUnmatched && ty3 <> TyUnmatched
+            && typecheck((f, TyFn(ty1, ty2))::(x, ty3)::env, e1) = ty2
+            && typecheck((f, TyFn(ty1, ty2))::env, e2) <> TyUnmatched
+            -> typecheck((f, TyFn(ty1, ty2))::env, e2)
+        | App (e1, e2) -> match typecheck(env, e1) with
+                        | TyFn(ty1, ty2) when typecheck(env, e2) = ty1 -> ty2
+
+                        | _ -> TyUnmatched
+
+        | _ -> TyUnmatched
 
 
 /////////////
@@ -247,14 +258,17 @@ and
 
 (** processa uma operação informando a descrição da mesma e o resultado **)
 let rec processexpr(t:Expr) =
-    //let typenv = Typenv.Empty
-    //let typecheckedexp = typecheck(typenv, t)
-    let env = Env.Empty
-    let result = valuetostring(eval (env, t))
-    let desc = exprtostring (t)
-    printfn "%A\n" desc
-    printfn ">> %A\n" result
-    printfn "-------------------------------------------------------\n\n"
+    let typenv = Typenv.Empty
+    let typecheckedexp = typecheck(typenv, t)
+    if(typecheckedexp <> TyUnmatched) then
+        let env = Env.Empty
+        let result = valuetostring(eval (env, t))
+        let desc = exprtostring (t)
+        printfn "%A\n" desc
+        printfn ">> %A\n" result
+        printfn "-------------------------------------------------------\n\n"
+    else
+        printfn "Typecheck Error!\n"
 
 //////////
 // MAIN //
