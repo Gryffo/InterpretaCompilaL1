@@ -155,23 +155,23 @@ let rec typecheck (env:Typenv, t : Expr) =
         | Bool(x) -> TyBool
         | If(t1, t2, t3) when typecheck (env, t1) = TyBool && (typecheck (env, t2) = typecheck (env, t3)) -> typecheck (env, t2)
         | Bop (t1, op, t2) -> match (typecheck(env, t1), op, typecheck(env, t2)) with
-                            | (TyInt, Sum, TyInt) -> TyInt
-                            | (TyInt, Diff, TyInt) -> TyInt
-                            | (TyInt, Mult, TyInt) -> TyInt
-                            | (TyInt, Div, TyInt) -> TyInt
-                            | (TyInt, Ls, TyInt) -> TyBool
-                            | (TyInt, Lse, TyInt) -> TyBool
-                            | (TyInt, Gr, TyInt) -> TyBool
-                            | (TyInt, Gre, TyInt) -> TyBool
-                            | (TyInt, Neq, TyInt) -> TyBool
-                            | (TyInt, Eq, TyInt) -> TyBool
+                                | (TyInt, Sum, TyInt) -> TyInt
+                                | (TyInt, Diff, TyInt) -> TyInt
+                                | (TyInt, Mult, TyInt) -> TyInt
+                                | (TyInt, Div, TyInt) -> TyInt
+                                | (TyInt, Ls, TyInt) -> TyBool
+                                | (TyInt, Lse, TyInt) -> TyBool
+                                | (TyInt, Gr, TyInt) -> TyBool
+                                | (TyInt, Gre, TyInt) -> TyBool
+                                | (TyInt, Neq, TyInt) -> TyBool
+                                | (TyInt, Eq, TyInt) -> TyBool
 
-                            | (TyBool, Neq, TyBool) -> TyBool
-                            | (TyBool, Eq, TyBool) -> TyBool
-                            | (TyBool, And, TyBool) -> TyBool
-                            | (TyBool, Or, TyBool) -> TyBool
+                                | (TyBool, Neq, TyBool) -> TyBool
+                                | (TyBool, Eq, TyBool) -> TyBool
+                                | (TyBool, And, TyBool) -> TyBool
+                                | (TyBool, Or, TyBool) -> TyBool
 
-                            | _ -> TyUnmatched
+                                | _ -> TyUnmatched
         | Var(x) -> findvariabletype(env, x)
         | Lam (var, ty, t) when ty <> TyUnmatched && typecheck((var, ty)::env, t) <> TyUnmatched -> TyFn(ty, typecheck((var, ty)::env, t))
         | Let (x, ty, e1, e2) when ty <> TyUnmatched && typecheck(env, e1) = ty && typecheck((x, ty)::env, e2) <> TyUnmatched -> typecheck((x, ty)::env, e2)
@@ -180,9 +180,9 @@ let rec typecheck (env:Typenv, t : Expr) =
             && typecheck((f, TyFn(ty1, ty2))::env, e2) <> TyUnmatched
             -> typecheck((f, TyFn(ty1, ty2))::env, e2)
         | App (e1, e2) -> match typecheck(env, e1) with
-                        | TyFn(ty1, ty2) when typecheck(env, e2) = ty1 -> ty2
+                            | TyFn(ty1, ty2) when typecheck(env, e2) = ty1 -> ty2
 
-                        | _ -> TyUnmatched
+                            | _ -> TyUnmatched
 
         | _ -> TyUnmatched
 
@@ -213,6 +213,7 @@ let rec typetostring(ty:Tipo) =
     | TyInt -> "int"
     | TyBool -> "bool"
     | TyFn(t1, t2) -> "fn " + typetostring(t1) + " -> " + typetostring(t2)
+    | TyUnmatched -> "unrecognized type"
 
 (** transforma uma expressão em string **)
 let rec exprtostringhelper(t:Expr, spaces:string) =
@@ -244,7 +245,7 @@ let rec valuetostring(v:Value) =
     | Vclos(v, e, env) -> "<" + v + ", " + exprtostring(e) + ", " + "env" + "> with env = {" + envtostring(env) + "}"
     | Vrclos(v1, v2, e, env) -> "<" + v1 + ", " + v2 + ", " + exprtostring(e) + ", " + "env" + "> with env = {" + envtostring(env) + "}"
     | VRaise -> "exception raised"
-    | _ -> "invalid string value"
+    //| _ -> "invalid string value"
 and
 (** transforma um environment em string **)
     envtostring(env:Env) =
