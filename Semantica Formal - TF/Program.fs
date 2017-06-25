@@ -269,7 +269,10 @@ let rec processexpr(t:Expr) =
         printfn ">> %A\n" result
         printfn "-------------------------------------------------------\n\n"
     else
-        printfn "Typecheck Error!\n"
+        let desc = exprtostring (t)
+        printfn "%A\n" desc
+        printfn ">> Typecheck Error!\n"
+        printfn "-------------------------------------------------------\n\n"
 
 //////////
 // MAIN //
