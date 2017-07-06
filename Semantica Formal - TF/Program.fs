@@ -29,7 +29,6 @@ type Tipo =
 and
     Typenv = (Variable * Tipo) list
 
-
 type Expr =
     | Num of int
     | Bool of bool
@@ -82,11 +81,6 @@ let rec findvariabletype (env:Typenv, var:Variable) =
         | (v, ty)::rst when v = var -> ty
         | (_, _)::tl -> findvariabletype(tl, var)
         | [] -> TyUnmatched
-
-
-
-
-
 
 let rec eval (env:Env, t:Expr) = // Expr -> Value
     match t with
@@ -281,6 +275,64 @@ let rec processexpr(t:Expr) =
 [<EntryPoint>]
 let main argv = 
     
+
+    let num01 = Num(1);                             (* OK - TInt  *)
+    let num02 = Num(2);                             (* OK - TInt  *)
+    let bool01 = Bool(true);                        (* OK - TBool *)
+    let bool02 = Bool(false);                       (* OK - TBool *)
+    let var01 = Var("x");                           (* Fail *)
+    let var02 = Var("y");                           (* Fail *)
+    let op01 = Bop(num01, Sum,num02);               (* OK - TInt  *)
+    let op02 = Bop(num01, Gre,num01);               (* OK - TBool *)
+    let op03 = Bop(num01, Sum,var01);               (* Fail *)
+    let op04 = Bop(var01, Sum,var01);               (* Fail *)
+    let if01 = If(bool01,num01,op01);               (* OK - TInt  *)
+    let if02 = If(bool02,bool01,op02);              (* OK - TBool *)
+    let if03 = If(num01,num01,num02);               (* Fail *)
+    let if04 = If(bool01,op01,op02);                (* Fail *)
+    let fun01 = Lam("x",TyInt,op01);                (* OK - TFun(TInt,TInt)  *)
+    let fun02 = Lam("x",TyInt,op02);                (* OK - TFun(TInt,TBool) *)
+    let fun03 = Lam("x",TyInt,op03);                (* OK - TFun(TInt,TInt) *)
+    let fun04 = Lam("y",TyInt,op03);                (* Fail *)
+    let fun05 = Lam("x",TyInt,op04);                (* Fail *)
+    let app01 = App(fun05,num01);                   (* OK - TInt *)
+    let app02 = App(fun05,app01);                   (* OK - TInt *)
+    let let01 = Let("x",TyInt,num01,op04);          (* OK - TInt *)
+    let let02 = Let("x",TyInt,num01,op01);          (* OK - TInt *)
+    let let03 = Let("y",TyInt,num01,op04);          (* Fail *)
+
+    let ex1 = Lam ("x", TyInt, If( Bop (Var "x", Gre, Num 4),Bop (Var "x", Sum, Num 1), Num 0));
+
+    // Processa os testes básicos
+    processexpr(num01)
+    processexpr(num02)
+    processexpr(bool01)
+    processexpr(bool02)
+    processexpr(var01)
+    processexpr(var02)
+    processexpr(op01)
+    processexpr(op02)
+    processexpr(op03)
+    processexpr(op04)
+    processexpr(if01)
+    processexpr(if02)
+    processexpr(if03)
+    processexpr(if04)
+    processexpr(fun01)
+    processexpr(fun02)
+    processexpr(fun03)
+    processexpr(fun04)
+    processexpr(fun05)
+    processexpr(app01)
+    processexpr(app02)
+    processexpr(let01)
+    processexpr(let02)
+    processexpr(let03)
+
+    processexpr(ex1)
+
+    // NOSSOS TESTES //
+
     let env = Env.Empty
 
     // Fatorial de 5 de acordo com o exemplo no moodle
@@ -309,10 +361,10 @@ let main argv =
     let term14 = Let("x", TyInt, term14a, term14c)
 
     // Teste
-    processexpr(term3)
-    processexpr(term11)
-    processexpr(term14)
-    processexpr(factorial)
+    // processexpr(term3)
+    // processexpr(term11)
+    // processexpr(term14)
+    // processexpr(factorial)
     
     // Não fechao terminal até apertar 'enter'
     System.Console.ReadKey() |> ignore
